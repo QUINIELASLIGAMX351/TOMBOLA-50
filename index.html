@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tómbola 351 - $50</title>
+<style>
+*{box-sizing:border-box;font-family:Arial;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:#050905;color:#fff;text-align:center}
+.header{padding:6px 8px;background:#000;border-bottom:2px solid #00ff15}
+.header h1{font-size:20px;line-height:1;background:linear-gradient(90deg,#00ff15,#fff,#ff073a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.precio{display:inline-block;background:#00ff15;color:#000;font-weight:900;padding:2px 10px;border-radius:20px;font-size:11px;margin-top:3px}
+.header p{font-size:10px;color:#aaa;margin-top:2px}
+.app{height:calc(100dvh - 52px);max-width:480px;margin:auto;padding:6px 8px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.top{display:flex;gap:6px;align-items:center}
+.wheel-wrap{position:relative;width:190px;height:190px;flex-shrink:0;margin:auto}
+#ruleta{width:100%;height:100%;border-radius:50%;border:4px solid #fff;box-shadow:0 0 18px #00ff15;overflow:hidden}
+.pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:22px solid #ff073a;z-index:20}
+.center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:68px;height:68px;background:#fff;border:3px solid #00ff15;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:10;overflow:hidden;box-shadow:0 0 15px #00ff15}
+.center img{width:54px;height:54px;object-fit:contain}
+.center span{font-weight:900;font-size:22px;color:#000}
+.side{flex:1;display:flex;flex-direction:column;gap:6px;text-align:left;min-width:0}
+.card{background:#101510;border:1px solid #1e3a1e;border-radius:10px;padding:7px}
+.card label{font-size:10px;color:#00ff15;font-weight:900}
+.card input{width:100%;padding:9px;border-radius:8px;border:1px solid #254a25;background:#060a06;color:#fff;font-size:14px;margin-top:4px;text-transform:uppercase}
+.card small{font-size:10px;opacity:.6}
+.btn{width:100%;padding:11px;border:none;border-radius:10px;background:#00ff15;color:#000;font-weight:900;font-size:15px;cursor:pointer}
+.btn:disabled{opacity:.5;background:#555;color:#fff}
+.btn-wa{width:100%;padding:9px;border:none;border-radius:10px;background:#25D366;color:#000;font-weight:900;font-size:12px;cursor:pointer}
+#resultado{background:#101510;border:1px solid #1e3a1e;border-radius:10px;padding:6px;min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px}
+#resultado img{width:44px;height:44px;background:#fff;border-radius:50%;padding:3px;object-fit:contain}
+#resultado h2{font-size:17px;color:#00ff15;margin:2px 0 0}
+.aviso{background:#2a0000;border:1px solid #ff073a;color:#ff9aa5;border-radius:8px;padding:5px;font-size:11px;display:none}
+.aviso.raya{background:#2a1a00;border-color:#ffcc00;color:#ffcc00}
+.total-box{background:#0a1a0a;border:2px solid #00ff15;border-radius:10px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center}
+.total-box b{font-size:17px;color:#00ff15}
+.total-box span{font-size:10px;opacity:.7;display:block}
+.colores{display:flex;gap:5px;justify-content:center}
+.bola{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:12px;border:1.5px solid #fff}
+.bola.out{opacity:.2;filter:grayscale(1)}
+.bottom{display:flex;gap:6px;flex:1;min-height:0}
+.hist{flex:1;background:#0a0f0a;border:1px solid #1e3a1e;border-radius:10px;padding:6px;font-size:11px;text-align:left;overflow-y:auto}
+.hist b{color:#00ff15}
+.bar{display:flex;gap:6px;align-items:center;background:#000;border-top:2px solid #00ff15;padding:6px 8px}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}
+.modal-box{background:#101510;border:2px solid #ff073a;border-radius:16px;padding:18px;width:100%;max-width:360px;text-align:center}
+.modal-box input{width:100%;padding:14px;border-radius:10px;border:1px solid #333;background:#000;color:#fff;font-size:20px;text-align:center;letter-spacing:5px;margin:12px 0}
+.modal-box button{width:100%;padding:12px;border-radius:10px;border:none;font-weight:900;margin-top:6px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header"><h1>TÓMBOLA 351</h1><div><span class="precio">💲 $50 POR TIRADA</span></div><p>🎁 1 TIRADA POR PERSONA • 8 EQUIPOS • SI CAE EN LA RAYA SE REPITE</p></div>
+
+<div class="app">
+  <div class="top">
+    <div class="wheel-wrap">
+      <div class="pointer"></div>
+      <div id="ruleta"><canvas id="wheel" width="320" height="320" style="width:100%;height:100%"></canvas></div>
+      <div class="center" id="centro"><span id="centroTexto">?</span><img id="escudoCentro" style="display:none"></div>
+    </div>
+    <div class="side">
+      <div class="card">
+        <label>✏️ TU NOMBRE</label>
+        <input id="nombre" placeholder="Ej: JUAN PEREZ" autocomplete="off">
+        <small>Costo: <b style="color:#00ff15">$50</b> • 1 vez por persona</small>
+      </div>
+      <div id="aviso" class="aviso"></div>
+      <button class="btn" id="btnGirar" onclick="girar()">🎡 ¡GIRAR! - $50</button>
+      <button class="btn-wa" onclick="enviarWhatsApp()">📲 ENVIAR A WHATSAPP</button>
+    </div>
+  </div>
+
+  <div id="resultado"><div style="opacity:.6">Pon tu nombre y dale a GIRAR<br>¿Qué equipo te tocará? 🎁</div></div>
+
+  <div class="total-box">
+    <div style="text-align:left"><span>💰 TOTAL RECAUDADO</span><b id="totalDinero">$0</b></div>
+    <div><div class="colores" id="colores"></div><div style="font-size:9px;opacity:.6;margin-top:2px">Equipos que quedan</div></div>
+    <div style="text-align:right"><span>TIRADAS</span><b id="totalTiradasTop">0 / 8</b></div>
+  </div>
+
+  <div class="bottom">
+    <div class="hist"><b>🏆 GANADORES - $50 C/U</b><div id="hist">Aún no hay ganadores</div></div>
+    <div class="hist"><b>👥 YA TIRARON</b><div id="yaTiraron">Nadie aún</div><div id="conteo" style="color:#aaa;margin-top:4px">0 / 8 • $0</div>
+    <button onclick="abrirAdmin()" style="margin-top:6px;width:100%;padding:7px;border-radius:8px;background:#111;color:#ff073a;border:1px solid #ff073a;font-size:11px">🔒 REINICIAR - SOLO ADMIN</button>
+    </div>
+  </div>
+</div>
+
+<div class="bar">
+  <div style="text-align:left"><div id="totalTiradas" style="font-weight:900;font-size:12px">0 tiradas</div><div id="totalBar" style="font-size:11px;color:#00ff15;font-weight:900">$0 recaudado</div></div>
+  <button onclick="enviarWhatsApp()" style="flex:1;background:#25D366;border:none;border-radius:10px;font-weight:900;padding:9px;font-size:13px">ENVIAR A MI WHATSAPP 📲</button>
+</div>
+
+<div id="modalAdmin" class="modal">
+<div class="modal-box">
+<h3 style="color:#ff073a;margin:0">🔒 SOLO ADMIN</h3>
+<p style="font-size:12px;opacity:.7">Pon el código para reiniciar todo</p>
+<input id="codigoAdmin" type="password" inputmode="numeric" placeholder="••••" maxlength="10">
+<button style="background:#ff073a;color:#fff" onclick="confirmarReinicio()">REINICIAR TODO</button>
+<button style="background:#222;color:#fff" onclick="cerrarAdmin()">CANCELAR</button>
+<div id="errorCodigo" style="color:#ff073a;font-size:12px;margin-top:8px;display:none">⛔ Código incorrecto</div>
+</div>
+</div>
+
+<script>
+const CODIGO_ADMIN = "2004";
+const PRECIO = 50;
+const MARGEN_RAYA = 4;
+const escudos={
+"CRUZ AZUL":"https://escudosfc.com.br/images/cruzazul.png",
+"AMERICA":"https://escudosfc.com.br/images/amex.png",
+"CHIVAS":"https://escudosfc.com.br/images/chivas_mex.png",
+"ATLAS":"https://escudosfc.com.br/images/atlas.png",
+"TOLUCA":"https://escudosfc.com.br/images/toluca.jpg",
+"MONTERREY":"https://escudosfc.com.br/images/monterrey.png",
+"LEON":"https://escudosfc.com.br/images/leon_mex.png",
+"PACHUCA":"https://escudosfc.com.br/images/pachuca.png"
+};
+let equipos=["CRUZ AZUL","AMERICA","CHIVAS","ATLAS","TOLUCA","MONTERREY","LEON","PACHUCA"];
+let disponibles = JSON.parse(localStorage.getItem('tombola351_disponibles') || 'null') || [...equipos];
+if(disponibles.length !== 8 || disponibles.includes("ATLANTE") || disponibles.includes("TIGRES")){
+  disponibles = [...equipos];
+  localStorage.removeItem('tombola351_ganadores');
+  localStorage.removeItem('tombola351_yaTiraron');
+}
+let ganadores = JSON.parse(localStorage.getItem('tombola351_ganadores') || '[]');
+ganadores = ganadores.filter(g => equipos.includes(g.equipo));
+let yaTiraron = JSON.parse(localStorage.getItem('tombola351_yaTiraron') || '[]');
+yaTiraron = yaTiraron.filter(n => ganadores.some(g => g.persona === n));
+let rotacion = parseFloat(localStorage.getItem('tombola351_rotacion') || '0');
+let girando=false;
+let nombreActual="";
+let intervaloEscudoCentro=null;
+const colores=["#00ff15","#ff073a","#ffffff","#00aaff","#ffcc00","#ff6600","#9b00ff","#00ffcc"];
+const canvas=document.getElementById('wheel');
+const ctx=canvas.getContext('2d');
+const ruleta=document.getElementById('ruleta');
+const escudoCentro=document.getElementById('escudoCentro');
+const centroTexto=document.getElementById('centroTexto');
+ruleta.style.transform=`rotate(${rotacion}deg)`;
+function mostrarEscudoCentro(nombreEquipo){
+  if(!nombreEquipo){
+    escudoCentro.style.display='none';
+    centroTexto.style.display='block';
+    centroTexto.textContent='?';
+    return;
+  }
+  escudoCentro.src=escudos[nombreEquipo];
+  escudoCentro.style.display='block';
+  centroTexto.style.display='none';
+}
+function guardar(){
+  localStorage.setItem('tombola351_disponibles', JSON.stringify(disponibles));
+  localStorage.setItem('tombola351_ganadores', JSON.stringify(ganadores));
+  localStorage.setItem('tombola351_yaTiraron', JSON.stringify(yaTiraron));
+  localStorage.setItem('tombola351_rotacion', rotacion.toString());
+}
+function dibujar(){
+  ctx.clearRect(0,0,320,320);
+  const arc=(Math.PI*2)/equipos.length;
+  equipos.forEach((eq,i)=>{
+    const s=i*arc, e=s+arc;
+    ctx.beginPath(); ctx.moveTo(160,160); ctx.arc(160,160,160,s,e);
+    ctx.fillStyle=colores[i];
+    ctx.fill(); ctx.strokeStyle="#000"; ctx.lineWidth=3; ctx.stroke();
+  });
+  ctx.beginPath(); ctx.arc(160,160,45,0,Math.PI*2); ctx.fillStyle="#000"; ctx.fill(); ctx.strokeStyle="#00ff15"; ctx.lineWidth=3; ctx.stroke();
+}
+function render(){
+  let total = ganadores.length * PRECIO;
+  document.getElementById('colores').innerHTML=equipos.map((eq,i)=>{
+    let usado = !disponibles.includes(eq);
+    return `<div class="bola ${usado?'out':''}" style="background:${colores[i]}">${usado?'✓':'?'}</div>`;
+  }).join('');
+  document.getElementById('hist').innerHTML= ganadores.length ? ganadores.map((g,i)=>`${i+1}. <b>${g.persona}</b> → 🏆 ${g.equipo} - $${PRECIO}`).join('<br>') : 'Aún no hay ganadores';
+  document.getElementById('yaTiraron').innerHTML= yaTiraron.length ? yaTiraron.join(', ') : 'Nadie aún';
+  document.getElementById('conteo').innerText=`${yaTiraron.length} / 8 • $${total}`;
+  document.getElementById('totalTiradas').innerText=`${yaTiraron.length} tiradas`;
+  document.getElementById('totalTiradasTop').innerText=`${yaTiraron.length} / 8`;
+  document.getElementById('totalDinero').innerText=`$${total}`;
+  document.getElementById('totalBar').innerText=`$${total} recaudado`;
+  if(!disponibles.length) document.getElementById('btnGirar').innerText=`¡YA SALIERON TODOS! - $${total}`;
+}
+function mostrarAviso(texto, esRaya=false){
+  let a=document.getElementById('aviso');
+  a.className = esRaya ? 'aviso raya' : 'aviso';
+  a.style.display='block'; a.innerText=texto;
+  setTimeout(()=>a.style.display='none',5000);
+}
+function girar(){
+  if(girando) return;
+  let nombre = nombreActual || document.getElementById('nombre').value.trim().toUpperCase();
+  if(!nombre){ mostrarAviso('⚠️ Pon tu nombre primero'); document.getElementById('nombre').focus(); return; }
+  if(yaTiraron.includes(nombre)){
+    mostrarAviso(`⛔ ${nombre} YA TIRÓ. Solo 1 tirada de $${PRECIO}.`);
+    nombreActual=""; return;
+  }
+  if(!disponibles.length){ mostrarAviso('Ya salieron todos'); return; }
+  girando=true;
+  nombreActual=nombre;
+  document.getElementById('btnGirar').disabled=true;
+  document.getElementById('btnGirar').innerText="🎡 GIRANDO...";
+  document.getElementById('resultado').innerHTML=`🎡 Girando para <b>${nombre}</b>...<br><span style="font-size:11px;opacity:.6">Tirada de $${PRECIO}</span>`;
+  let idxCentro = 0;
+  intervaloEscudoCentro = setInterval(()=>{
+    const equipoMostrar = equipos[idxCentro % equipos.length];
+    mostrarEscudoCentro(equipoMostrar);
+    idxCentro++;
+  }, 90);
+  const arcDeg=360/equipos.length;
+  const ganadorTentativo=disponibles[Math.floor(Math.random()*disponibles.length)];
+  const idx=equipos.indexOf(ganadorTentativo);
+  const offsetEnCasilla = Math.random()*arcDeg;
+  const distanciaARaya = Math.min(offsetEnCasilla, arcDeg - offsetEnCasilla);
+  const cayoEnRaya = distanciaARaya <= MARGEN_RAYA;
+  const centroCasilla = idx*arcDeg + offsetEnCasilla;
+  const destino = rotacion + 360*6 + (360 - centroCasilla) + 90;
+  const inicio=rotacion;
+  const total=destino-inicio;
+  const duracion=4000;
+  const t0=performance.now();
+  function animar(t){
+    let p=(t-t0)/duracion;
+    if(p>1) p=1;
+    let ease=1-Math.pow(1-p,4);
+    rotacion=inicio + total*ease;
+    ruleta.style.transform=`rotate(${rotacion}deg)`;
+    if(p<1){ requestAnimationFrame(animar); }
+    else{
+      clearInterval(intervaloEscudoCentro);
+      if(cayoEnRaya){
+        mostrarEscudoCentro(null);
+        document.getElementById('resultado').innerHTML=`<div style="font-size:28px">⚠️</div><h2 style="color:#ffcc00">¡CAYÓ EN LA RAYA!</h2><div style="font-size:12px"><b>${nombre}</b> NO pierde tirada ni $${PRECIO}. ¡Vuelve a tirar!</div>`;
+        mostrarAviso(`⚠️ ¡CAYÓ EN LA RAYA! ${nombre} vuelve a tirar, no se cuenta ni se cobra.`, true);
+        document.getElementById('nombre').value=nombre;
+        girando=false;
+        document.getElementById('btnGirar').disabled=false;
+        document.getElementById('btnGirar').innerText="🔄 ¡VUELVE A TIRAR - RAYA! - SIN COBRO";
+        return;
+      }
+      mostrarEscudoCentro(ganadorTentativo);
+      yaTiraron.push(nombre);
+      disponibles=disponibles.filter(e=>e!==ganadorTentativo);
+      ganadores.push({persona:nombre, equipo:ganadorTentativo});
+      guardar();
+      document.getElementById('resultado').innerHTML=`<img src="${escudos[ganadorTentativo]}"><div style="font-size:11px"><b>${nombre}</b> - $${PRECIO}</div><h2>🎁 ¡TE TOCÓ ${ganadorTentativo}!</h2>`;
+      document.getElementById('nombre').value='';
+      nombreActual="";
+      render(); girando=false; document.getElementById('btnGirar').disabled=false;
+      document.getElementById('btnGirar').innerText=`🎡 ¡GIRAR! - $${PRECIO}`;
+    }
+  }
+  requestAnimationFrame(animar);
+}
+function enviarWhatsApp(){
+  if(!ganadores.length) return alert('Aún no hay tiradas para enviar');
+  let total = ganadores.length * PRECIO;
+  let msg=`*🎡 TÓMBOLA 351 - RESULTADOS*%0A%0A`;
+  msg+=`*💲 $${PRECIO} POR TIRADA*%0A%0A`;
+  ganadores.forEach((g,i)=>{ msg+=`${i+1}. *${g.persona}* → 🏆 ${g.equipo} - $${PRECIO}%0A`; });
+  msg+=`%0A*Total tiradas:* ${ganadores.length} / 8%0A`;
+  msg+=`*💰 TOTAL RECAUDADO: $${total}*`;
+  window.open('https://wa.me/523513743191?text='+msg,'_blank');
+}
+function abrirAdmin(){
+  document.getElementById('modalAdmin').classList.add('show');
+  document.getElementById('codigoAdmin').value='';
+  document.getElementById('errorCodigo').style.display='none';
+  setTimeout(()=>document.getElementById('codigoAdmin').focus(),100);
+}
+function cerrarAdmin(){ document.getElementById('modalAdmin').classList.remove('show'); }
+function confirmarReinicio(){
+  let codigo=document.getElementById('codigoAdmin').value.trim();
+  if(codigo !== CODIGO_ADMIN){
+    document.getElementById('errorCodigo').style.display='block';
+    document.getElementById('codigoAdmin').value='';
+    return;
+  }
+  if(!confirm('¿Seguro que quieres borrar todo? Esto borra también el dinero recaudado.')) return;
+  disponibles=[...equipos]; ganadores=[]; yaTiraron=[]; rotacion=0; nombreActual="";
+  clearInterval(intervaloEscudoCentro);
+  mostrarEscudoCentro(null);
+  localStorage.removeItem('tombola351_disponibles');
+  localStorage.removeItem('tombola351_ganadores');
+  localStorage.removeItem('tombola351_yaTiraron');
+  localStorage.removeItem('tombola351_rotacion');
+  ruleta.style.transform=`rotate(0deg)`;
+  document.getElementById('resultado').innerHTML='Pon tu nombre y dale a GIRAR<br>¿Qué equipo te tocará? 🎁';
+  document.getElementById('btnGirar').innerText=`🎡 ¡GIRAR! - $${PRECIO}`;
+  cerrarAdmin(); render(); alert('✅ Reiniciado. Dinero en $0. Todos pueden volver a tirar.');
+}
+dibujar(); render();
+if(ganadores.length){
+  let ultimo=ganadores[ganadores.length-1];
+  mostrarEscudoCentro(ultimo.equipo);
+  document.getElementById('resultado').innerHTML=`<img src="${escudos[ultimo.equipo]}"><div style="font-size:11px">Última: <b>${ultimo.persona}</b> - $${PRECIO}</div><h2>🏆 ${ultimo.equipo}</h2>`;
+}
+document.getElementById('nombre').addEventListener('keydown',e=>{ if(e.key==='Enter') girar(); });
+document.getElementById('codigoAdmin').addEventListener('keydown',e=>{ if(e.key==='Enter') confirmarReinicio(); });
+document.getElementById('modalAdmin').addEventListener('click',e=>{ if(e.target.id==='modalAdmin') cerrarAdmin(); });
+</script>
+</body>
+</html>
